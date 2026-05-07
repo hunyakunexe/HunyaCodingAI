@@ -281,6 +281,16 @@ Python 3.12+ を基準に、以下の全領域に完全精通しています：
 
 const PIXEL_CHARS = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
 
+// 日本語入力の互換性サポート
+const useJapaneseInput = () => {
+  const [isComposing, setIsComposing] = useState(false);
+  
+  const handleCompositionStart = () => setIsComposing(true);
+  const handleCompositionEnd = () => setIsComposing(false);
+  
+  return { isComposing, handleCompositionStart, handleCompositionEnd };
+};
+
 function MatrixBg() {
   const canvasRef = useRef(null);
   useEffect(() => {
@@ -295,7 +305,7 @@ function MatrixBg() {
       ctx.fillStyle = "rgba(0,0,0,0.04)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#1a3a1a";
-      ctx.font = "12px monospace";
+      ctx.font = "12px 'Noto Sans JP', monospace";
       drops.forEach((y, i) => {
         const char = PIXEL_CHARS[Math.floor(Math.random() * PIXEL_CHARS.length)];
         ctx.fillStyle = `rgba(60,${80 + Math.random() * 60},60,${0.15 + Math.random() * 0.1})`;
@@ -312,9 +322,10 @@ function MatrixBg() {
 function CodeBlock({ content }) {
   const [copied, setCopied] = useState(false);
   const copy = () => {
-    navigator.clipboard.writeText(content);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    navigator.clipboard.writeText(content).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
   };
   return (
     <div style={{ position: "relative", margin: "8px 0" }}>
@@ -322,13 +333,13 @@ function CodeBlock({ content }) {
         position: "absolute", top: 8, right: 8, background: copied ? "#1a4a1a" : "#1e1e2e",
         color: copied ? "#6AAB14" : "#888", border: `1px solid ${copied ? "#6AAB14" : "#333"}`,
         borderRadius: 4, padding: "2px 10px", fontSize: 11, cursor: "pointer", zIndex: 10,
-        fontFamily: "monospace", transition: "all 0.2s"
+        fontFamily: "'Noto Sans JP', monospace", transition: "all 0.2s", whiteSpace: "nowrap"
       }}>{copied ? "✓ コピー済" : "コピー"}</button>
       <pre style={{
         background: "#0a0a12", border: "1px solid #222", borderRadius: 8,
         padding: "16px 48px 16px 16px", overflowX: "auto", fontSize: 13,
-        fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace",
-        color: "#e0e0e0", lineHeight: 1.6, margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-all"
+        fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Noto Sans JP', monospace",
+        color: "#e0e0e0", lineHeight: 1.6, margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word"
       }}>{content}</pre>
     </div>
   );
@@ -378,8 +389,8 @@ function MessageBubble({ msg, activeCategory }) {
             ? <CodeBlock key={i} content={p.content} />
             : <p key={i} style={{
                 margin: 0, fontSize: 14, lineHeight: 1.75, color: "#d0d0d8",
-                fontFamily: "'Noto Sans JP', 'Hiragino Sans', sans-serif",
-                whiteSpace: "pre-wrap"
+                fontFamily: "'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif",
+                whiteSpace: "pre-wrap", wordBreak: "break-word"
               }}>{p.content}</p>
         )}
       </div>
@@ -395,6 +406,7 @@ export default function CodeCraftAI() {
   const [streamText, setStreamText] = useState("");
   const endRef = useRef(null);
   const textareaRef = useRef(null);
+  const { isComposing, handleCompositionStart, handleCompositionEnd } = useJapaneseInput();
 
   const cat = CATEGORIES.find(c => c.id === activeCategory);
 
@@ -436,7 +448,7 @@ export default function CodeCraftAI() {
       });
 
       if (!res.ok) {
-        throw new Error(`API Error: ${res.status}`);
+        throw new Error(`APIエラー: ${res.status}`);
       }
 
       const reader = res.body.getReader();
@@ -446,7 +458,7 @@ export default function CodeCraftAI() {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value);
+        const chunk = decoder.decode(value, { stream: true });
         const lines = chunk.split("\n");
         for (const line of lines) {
           if (line.startsWith("data: ")) {
@@ -473,7 +485,10 @@ export default function CodeCraftAI() {
   };
 
   const handleKey = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+    if (e.key === "Enter" && !e.shiftKey && !isComposing) { 
+      e.preventDefault(); 
+      send(); 
+    }
   };
 
   const suggestions = {
@@ -488,7 +503,7 @@ export default function CodeCraftAI() {
   return (
     <div style={{
       minHeight: "100vh", background: "#050508",
-      fontFamily: "'Noto Sans JP', 'Hiragino Sans', sans-serif",
+      fontFamily: "'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif",
       display: "flex", flexDirection: "column", position: "relative", overflow: "hidden"
     }}>
       <MatrixBg />
@@ -511,13 +526,13 @@ export default function CodeCraftAI() {
           <div style={{ fontSize: 17, fontWeight: 700, color: "#fff", letterSpacing: "0.01em" }}>
             CodeCraft <span style={{ color: cat.color }}>AI</span>
           </div>
-          <div style={{ fontSize: 11, color: "#555", letterSpacing: "0.05em", fontFamily: "monospace" }}>
-            WORLD'S MOST POWERFUL CODING AI
+          <div style={{ fontSize: 11, color: "#555", letterSpacing: "0.05em", fontFamily: "'Noto Sans JP', monospace" }}>
+            最強のコーディングAI・日本語完全対応
           </div>
         </div>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
           <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#6AAB14", boxShadow: "0 0 6px #6AAB14", animation: "pulse 2s infinite" }} />
-          <span style={{ fontSize: 11, color: "#555", fontFamily: "monospace" }}>ONLINE</span>
+          <span style={{ fontSize: 11, color: "#555", fontFamily: "'Noto Sans JP', monospace" }}>オンライン</span>
         </div>
       </div>
 
@@ -538,6 +553,7 @@ export default function CodeCraftAI() {
             fontSize: 12, fontWeight: 600, transition: "all 0.2s",
             boxShadow: activeCategory === c.id ? `0 0 12px ${c.glow}` : "none",
             display: "flex", alignItems: "center", gap: 6,
+            fontFamily: "'Noto Sans JP', sans-serif"
           }}>
             <span style={{ fontSize: 14 }}>{c.icon}</span>
             <span style={{ whiteSpace: "nowrap" }}>{c.label}</span>
@@ -624,12 +640,14 @@ export default function CodeCraftAI() {
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKey}
+            onCompositionStart={handleCompositionStart}
+            onCompositionEnd={handleCompositionEnd}
             placeholder={`${cat.label}について質問する... (Shift+Enter で改行)`}
             disabled={loading}
             rows={1}
             style={{
               flex: 1, background: "transparent", border: "none", outline: "none",
-              color: "#e0e0e0", fontSize: 14, fontFamily: "'Noto Sans JP', sans-serif",
+              color: "#e0e0e0", fontSize: 14, fontFamily: "'Noto Sans JP', 'Hiragino Sans', sans-serif",
               resize: "none", maxHeight: 120, overflowY: "auto",
               scrollbarWidth: "thin", lineHeight: 1.6,
               caretColor: cat.color
@@ -649,12 +667,16 @@ export default function CodeCraftAI() {
             boxShadow: !loading && input.trim() ? `0 0 12px ${cat.glow}` : "none"
           }}>↑</button>
         </div>
-        <div style={{ fontSize: 10, color: "#333", textAlign: "center", marginTop: 6, fontFamily: "monospace" }}>
-          Powered by Claude Opus 4.1 · {cat.label} 専門モード · 最強のコーディングAI
+        <div style={{ fontSize: 10, color: "#333", textAlign: "center", marginTop: 6, fontFamily: "'Noto Sans JP', monospace" }}>
+          Claude Opus 4.1 · {cat.label} 専門モード · 日本語・英語・プログラミング言語対応
         </div>
       </div>
 
       <style>{`
+        * {
+          font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
         @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-8px)} }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
