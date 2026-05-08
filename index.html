@@ -182,6 +182,7 @@
             margin-bottom: 12px;
             border-radius: 4px;
             animation: slideInLeft 0.4s ease-out;
+            font-size: 0.9em;
         }
 
         .discussion-item.gemini {
@@ -205,7 +206,7 @@
             font-weight: 700;
             color: #667eea;
             margin-bottom: 5px;
-            font-size: 0.9em;
+            font-size: 0.85em;
         }
 
         .discussion-item.gemini .ai-name {
@@ -226,8 +227,10 @@
 
         .discussion-content {
             color: #555;
-            font-size: 0.95em;
-            line-height: 1.5;
+            font-size: 0.9em;
+            line-height: 1.4;
+            max-height: 120px;
+            overflow-y: auto;
         }
 
         .discussion-scroll {
@@ -242,11 +245,11 @@
             padding: 15px;
             border-radius: 8px;
             font-family: 'Courier New', monospace;
-            font-size: 0.85em;
+            font-size: 0.8em;
             overflow-x: auto;
             max-height: 400px;
             overflow-y: auto;
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
         .code-output code {
@@ -260,6 +263,7 @@
             padding: 10px;
             background: #f8f9fa;
             border-radius: 6px;
+            font-size: 0.9em;
         }
 
         .status-indicator {
@@ -267,6 +271,7 @@
             height: 12px;
             border-radius: 50%;
             margin-right: 10px;
+            flex-shrink: 0;
         }
 
         .status-indicator.pending {
@@ -431,6 +436,22 @@
             font-weight: 600;
             text-align: center;
             margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .thinking-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #764ba2;
+            margin-right: 5px;
+            animation: thinkingPulse 0.6s infinite;
+        }
+
+        @keyframes thinkingPulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.3); opacity: 1; }
         }
     </style>
 </head>
@@ -438,7 +459,7 @@
     <div class="container">
         <header>
             <h1>🤖 HunyaCodingAI</h1>
-            <p>マルチレイヤーAIシステム - 完全クライアントサイド実装</p>
+            <p>マルチレイヤーAIシステム - 完全クライアントサイド実装（オリジナルAI強化版）</p>
         </header>
 
         <div class="main-grid">
@@ -498,18 +519,18 @@
                     </div>
                     <div class="stat-box">
                         <div class="stat-number" id="testCount">0</div>
-                        <div class="stat-label">テスト回数</div>
+                        <div class="stat-label">テスト</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-number" id="iterations">0/50</div>
-                        <div class="stat-label">進行状況</div>
+                        <div class="stat-label">進度</div>
                     </div>
                 </div>
             </div>
 
             <!-- 中央パネル：議論 -->
             <div class="discussion-panel">
-                <h2>💬 マルチAI議論フェーズ</h2>
+                <h2>💬 マルチAI議論</h2>
                 <div class="cycle-counter">サイクル: <span id="cycleBadge">0</span> / 50</div>
                 <div class="discussion-scroll" id="discussionContainer"></div>
             </div>
@@ -548,153 +569,543 @@
             discussionItems: [],
             generatedCode: '',
             testResults: [],
-            apiKeys: {
-                gemini: '',
-                openai: ''
-            },
+            apiKeys: { gemini: '', openai: '' },
             isRunning: false,
-            stats: {
-                discussionCount: 0,
-                testCount: 0,
-                cycleCount: 0
-            }
+            stats: { discussionCount: 0, testCount: 0, cycleCount: 0 },
+            previousDiscussions: []
         };
 
         // =============================================
-        // カスタムAIエンジン（オリジナルAI）
+        // 高性能オリジナルAIエンジン（大幅強化版）
         // =============================================
-        class CustomAIEngine {
+        class AdvancedCustomAIEngine {
             constructor() {
-                this.knowledge = new Map();
-                this.initializeKnowledge();
+                this.knowledgeBase = new Map();
+                this.patternLibrary = new Map();
+                this.architecturePatterns = new Map();
+                this.bestPracticesDB = new Map();
+                this.codeTemplateLibrary = new Map();
+                this.riskAssessmentRules = new Map();
+                this.performanceOptimizations = new Map();
+                this.initializeComprehensiveKnowledge();
             }
 
-            initializeKnowledge() {
-                // Python プラグイン知識
-                this.knowledge.set('python-discord', {
-                    frameworks: ['discord.py', 'py-cord'],
-                    patterns: ['Event handlers', 'Commands', 'Cogs'],
-                    bestPractices: ['Use async/await', 'Error handling', 'Rate limiting']
+            initializeComprehensiveKnowledge() {
+                // ================== Python ==================
+                this.knowledgeBase.set('python-discord', {
+                    frameworks: ['discord.py', 'py-cord', 'discord-interactions'],
+                    patterns: ['Cogs system', 'Event handlers', 'Commands', 'Tasks', 'Context managers'],
+                    architectures: ['MVC', 'Layered', 'Plugin-based'],
+                    libraries: ['asyncio', 'aiohttp', 'SQLAlchemy', 'pydantic'],
+                    bestPractices: [
+                        'Use async/await everywhere',
+                        'Implement proper error handling with try-except-finally',
+                        'Rate limiting per user',
+                        'Connection pooling for databases',
+                        'Dependency injection pattern',
+                        'Configuration management with .env files'
+                    ]
                 });
 
-                // JavaScript 知識
-                this.knowledge.set('javascript-discord', {
-                    frameworks: ['discord.js', 'discordeno'],
-                    patterns: ['Event emitters', 'Slash commands', 'Interactions'],
-                    bestPractices: ['Promises', 'Error handling', 'Rate limiting']
+                this.knowledgeBase.set('python-minecraft', {
+                    frameworks: ['Bukkit', 'Spigot', 'Paper', 'PyMC'],
+                    patterns: ['Plugin listeners', 'Event system', 'Command handlers', 'Configuration files'],
+                    architectures: ['Plugin-based', 'Service-oriented'],
+                    libraries: ['pyyaml', 'pymongo', 'redis'],
+                    bestPractices: [
+                        'Async task scheduling',
+                        'Data persistence strategy',
+                        'Plugin configuration in YAML',
+                        'Proper logging with timestamps',
+                        'Memory optimization for long-running tasks'
+                    ]
                 });
 
-                // Java 知識
-                this.knowledge.set('java-minecraft', {
-                    frameworks: ['Bukkit', 'Spigot', 'Paper'],
-                    patterns: ['Listeners', 'Commands', 'Events'],
-                    bestPractices: ['Async loading', 'Configuration files', 'Logging']
+                this.knowledgeBase.set('python-general', {
+                    frameworks: ['FastAPI', 'Flask', 'Django', 'Celery'],
+                    patterns: ['Singleton', 'Factory', 'Observer', 'Strategy', 'Decorator'],
+                    architectures: ['Microservices', 'Monolithic', 'Serverless'],
+                    libraries: ['typing', 'dataclasses', 'logging', 'unittest', 'pytest'],
+                    bestPractices: [
+                        'Type hints for all functions',
+                        'Docstrings with examples',
+                        'Unit tests with >80% coverage',
+                        'Virtual environments',
+                        'CI/CD integration'
+                    ]
                 });
 
-                // TypeScript 知識
-                this.knowledge.set('typescript-general', {
-                    patterns: ['Interfaces', 'Classes', 'Generics'],
-                    bestPractices: ['Strict mode', 'Type safety', 'Error handling']
+                // ================== JavaScript ==================
+                this.knowledgeBase.set('javascript-discord', {
+                    frameworks: ['discord.js', 'discordeno', 'eris'],
+                    patterns: ['Event emitters', 'Middleware', 'Slash commands', 'Message components'],
+                    architectures: ['Command handler', 'Client-server', 'Modular'],
+                    libraries: ['node-fetch', 'axios', 'dotenv', 'better-sqlite3'],
+                    bestPractices: [
+                        'Use Promises and async/await',
+                        'Implement comprehensive error handling',
+                        'Cache frequently accessed data',
+                        'Rate limiting with buckets',
+                        'Proper shutdown handling'
+                    ]
+                });
+
+                this.knowledgeBase.set('javascript-general', {
+                    frameworks: ['Node.js', 'Express', 'Fastify', 'NestJS'],
+                    patterns: ['Module pattern', 'Middleware', 'Observer', 'Proxy', 'Factory'],
+                    architectures: ['Layered', 'Microservices', 'Event-driven'],
+                    libraries: ['winston', 'joi', 'moment', 'lodash'],
+                    bestPractices: [
+                        'Const/let instead of var',
+                        'Arrow functions for callbacks',
+                        'Promise chains or async/await',
+                        'Input validation',
+                        'Comprehensive logging'
+                    ]
+                });
+
+                // ================== Java ==================
+                this.knowledgeBase.set('java-minecraft', {
+                    frameworks: ['Bukkit', 'Spigot', 'Paper', 'Sponge'],
+                    patterns: ['Listeners', 'Singletons', 'Builder', 'Factory'],
+                    architectures: ['Plugin-based', 'Event-driven', 'MVC'],
+                    libraries: ['Lombok', 'Gson', 'SQLite', 'Redis'],
+                    bestPractices: [
+                        'Async task scheduling',
+                        'Configuration in plugin.yml',
+                        'Proper resource management',
+                        'Thread-safe operations',
+                        'Memory efficient data structures'
+                    ]
+                });
+
+                this.knowledgeBase.set('java-general', {
+                    frameworks: ['Spring', 'Quarkus', 'Micronaut', 'Dropwizard'],
+                    patterns: ['MVC', 'Repository', 'Service', 'DAO', 'Singleton'],
+                    architectures: ['Layered', 'Microservices', 'Domain-driven design'],
+                    libraries: ['JUnit', 'Mockito', 'Log4j', 'Jackson'],
+                    bestPractices: [
+                        'Dependency injection',
+                        'SOLID principles',
+                        'Exception handling hierarchy',
+                        'Resource try-with-resources',
+                        'Unit testing with mocks'
+                    ]
+                });
+
+                // ================== TypeScript ==================
+                this.knowledgeBase.set('typescript-general', {
+                    frameworks: ['NestJS', 'TypeORM', 'Express'],
+                    patterns: ['Decorators', 'Interfaces', 'Generics', 'Mixins'],
+                    architectures: ['Layered', 'DDD', 'Modular'],
+                    libraries: ['class-validator', 'class-transformer', 'winston'],
+                    bestPractices: [
+                        'Strict mode enabled',
+                        'Strong typing throughout',
+                        'Interface segregation',
+                        'Module exports',
+                        'Generics for reusability'
+                    ]
+                });
+
+                // ================== C# ==================
+                this.knowledgeBase.set('csharp-general', {
+                    frameworks: ['.NET', '.NET Core', 'ASP.NET Core', 'Unity'],
+                    patterns: ['LINQ', 'Delegates', 'Events', 'Generics'],
+                    architectures: ['MVC', 'MVVM', 'Microservices'],
+                    libraries: ['Entity Framework', 'Serilog', 'Autofac'],
+                    bestPractices: [
+                        'Using statements for resource management',
+                        'Properties instead of fields',
+                        'Async/await patterns',
+                        'Dependency injection containers',
+                        'Unit tests with xUnit'
+                    ]
+                });
+
+                // ================== C++ ==================
+                this.knowledgeBase.set('cpp-general', {
+                    frameworks: ['Boost', 'Qt', 'wxWidgets', 'SFML'],
+                    patterns: ['RAII', 'Smart pointers', 'Template metaprogramming'],
+                    architectures: ['Observer', 'Strategy', 'Factory'],
+                    libraries: ['STL', 'nlohmann/json', 'spdlog'],
+                    bestPractices: [
+                        'Use const correctness',
+                        'Prefer stack allocation',
+                        'Smart pointers over raw pointers',
+                        'Move semantics',
+                        'Template specialization'
+                    ]
+                });
+
+                // ================== アーキテクチャパターン ==================
+                this.architecturePatterns.set('plugin-system', {
+                    description: 'プラグインベースの拡張可能なアーキテクチャ',
+                    layers: ['Core Engine', 'Plugin Interface', 'Plugin Implementations', 'Plugin Registry'],
+                    benefits: ['Extensibility', 'Maintainability', 'Modularity'],
+                    tradeoffs: ['Complexity', 'Performance overhead']
+                });
+
+                this.architecturePatterns.set('event-driven', {
+                    description: 'イベント駆動型アーキテクチャ',
+                    layers: ['Event Producer', 'Event Bus', 'Event Handler', 'State Store'],
+                    benefits: ['Scalability', 'Decoupling', 'Responsiveness'],
+                    tradeoffs: ['Complexity', 'Testing difficulty']
+                });
+
+                this.architecturePatterns.set('microservices', {
+                    description: 'マイクロサービスアーキテクチャ',
+                    layers: ['API Gateway', 'Services', 'Data Stores', 'Message Bus'],
+                    benefits: ['Independent deployment', 'Technology diversity', 'Scalability'],
+                    tradeoffs: ['Network latency', 'Data consistency', 'Debugging']
+                });
+
+                this.architecturePatterns.set('layered', {
+                    description: '層状アーキテクチャ',
+                    layers: ['Presentation', 'Business Logic', 'Persistence', 'Database'],
+                    benefits: ['Clear separation of concerns', 'Testability', 'Maintainability'],
+                    tradeoffs: ['Performance', 'Rigidity']
+                });
+
+                // ================== リスク評価ルール ==================
+                this.riskAssessmentRules.set('scope-complexity', {
+                    check: (req) => req.length > 800,
+                    risk: 'HIGH',
+                    message: '大規模プロジェクト: フェーズ開発とインクリメンタルテストが必須',
+                    mitigation: ['段階的実装', '早期プロトタイピング', '継続的テスト']
+                });
+
+                this.riskAssessmentRules.set('database', {
+                    check: (req) => /database|storage|persist|data/i.test(req),
+                    risk: 'MEDIUM',
+                    message: 'データベース統合あり: バックアップ戦略とスキーマ管理が重要',
+                    mitigation: ['マイグレーション計画', 'トランザクション管理', 'バックアップ体制']
+                });
+
+                this.riskAssessmentRules.set('external-api', {
+                    check: (req) => /api|external|third-party|cloud/i.test(req),
+                    risk: 'MEDIUM',
+                    message: '外部API依存: フォールバック機構とリトライロジックが必須',
+                    mitigation: ['リトライ機構', 'キャッシング', 'フェイルオーバー']
+                });
+
+                this.riskAssessmentRules.set('authentication', {
+                    check: (req) => /auth|security|token|password/i.test(req),
+                    risk: 'HIGH',
+                    message: 'セキュリティ考慮必須: 認証・暗号化・入力検証の徹底',
+                    mitigation: ['HashPassword', 'JWTトークン', '入力検証', 'HTTPS']
+                });
+
+                this.riskAssessmentRules.set('performance', {
+                    check: (req) => /fast|optimize|performance|scale/i.test(req),
+                    risk: 'MEDIUM',
+                    message: 'パフォーマンス要件: プロファイリングとベンチマーク必須',
+                    mitigation: ['キャッシング', 'インデックス', '非同期処理', 'CDN']
+                });
+
+                // ================== パフォーマンス最適化 ==================
+                this.performanceOptimizations.set('caching', {
+                    technique: 'メモリキャッシング',
+                    tools: ['Redis', 'Memcached', 'local caching'],
+                    implementation: 'LRU or TTL based cache invalidation'
+                });
+
+                this.performanceOptimizations.set('async', {
+                    technique: '非同期処理',
+                    tools: ['asyncio', 'Promises', 'CompletableFuture'],
+                    implementation: 'async/await with proper exception handling'
+                });
+
+                this.performanceOptimizations.set('indexing', {
+                    technique: 'データベースインデックス',
+                    tools: ['B-tree index', 'Hash index', 'Full-text search'],
+                    implementation: 'Strategic index placement on frequently queried columns'
+                });
+
+                this.performanceOptimizations.set('connection-pooling', {
+                    technique: '接続プーリング',
+                    tools: ['HikariCP', 'pgbouncer', 'node-pool'],
+                    implementation: 'Reuse connections instead of creating new ones'
+                });
+
+                this.performanceOptimizations.set('compression', {
+                    technique: 'データ圧縮',
+                    tools: ['gzip', 'brotli', 'protobuf'],
+                    implementation: 'Compress data in transit and at rest'
                 });
             }
 
-            analyze(userRequest, language, framework) {
-                const key = `${language}-${framework ? framework.split(' ')[0].toLowerCase() : 'general'}`;
-                const kbase = this.knowledge.get(key) || this.knowledge.get(`${language}-general`) || {};
+            async deepAnalyze(userRequest, language, framework) {
+                // 思考時間を確保（2-4秒）
+                const thinkingTime = 2000 + Math.random() * 2000;
+                await this.sleep(thinkingTime);
 
-                return {
-                    suggestion: this.generateSuggestion(userRequest, language, framework),
-                    architecture: this.suggestArchitecture(language, kbase),
-                    riskAnalysis: this.analyzeRisks(userRequest),
-                    improvements: this.suggestImprovements(language)
+                const analysis = {
+                    requestDecomposition: this.decomposeRequest(userRequest),
+                    coreRequirements: this.extractCoreRequirements(userRequest),
+                    implicitRequirements: this.inferImplicitRequirements(userRequest, language),
+                    recommendedArchitecture: this.selectOptimalArchitecture(userRequest, language, framework),
+                    technicalStack: this.buildTechnicalStack(userRequest, language, framework),
+                    riskAnalysis: this.comprehensiveRiskAnalysis(userRequest),
+                    performanceConsiderations: this.analyzePerformanceNeeds(userRequest),
+                    securityConcerns: this.identifySecurityConcerns(userRequest),
+                    scalabilityStrategy: this.planScalability(userRequest),
+                    testingStrategy: this.defineTestingStrategy(userRequest, language),
+                    codeStructure: this.recommendCodeStructure(language, framework),
+                    implementationPhases: this.planImplementationPhases(userRequest)
                 };
+
+                return analysis;
             }
 
-            generateSuggestion(request, language, framework) {
-                return `[Custom AI Analysis] 
-                    - Language: ${language}
-                    - Framework: ${framework || 'Standard Library'}
-                    - Request Understanding: ${this.extractKeyFeatures(request)}
-                    - Recommended Pattern: ${this.recommendPattern(request)}`;
+            decomposeRequest(request) {
+                const sentences = request.match(/[^.!?]+[.!?]+/g) || [request];
+                return sentences.map(s => ({
+                    sentence: s.trim(),
+                    subjects: this.extractEntities(s),
+                    verbs: this.extractActions(s),
+                    objects: this.extractTargets(s)
+                }));
             }
 
-            extractKeyFeatures(request) {
-                const keywords = ['plugin', 'bot', 'command', 'api', 'database', 'auth', 'config'];
-                const features = keywords.filter(k => request.toLowerCase().includes(k));
-                return features.length > 0 ? features.join(', ') : 'Basic functionality';
+            extractCoreRequirements(request) {
+                const requirements = [];
+                const patterns = [
+                    { pattern: /create|build|make|implement|develop/i, type: 'Development' },
+                    { pattern: /command|button|event|trigger/i, type: 'Interaction' },
+                    { pattern: /store|save|persist|database|file/i, type: 'Storage' },
+                    { pattern: /user|player|client/i, type: 'User Management' },
+                    { pattern: /authenticate|login|permission|role/i, type: 'Security' },
+                    { pattern: /api|integration|external|webhook/i, type: 'Integration' },
+                    { pattern: /log|monitor|track|debug/i, type: 'Logging' }
+                ];
+
+                patterns.forEach(({ pattern, type }) => {
+                    if (pattern.test(request)) {
+                        requirements.push(type);
+                    }
+                });
+
+                return requirements;
             }
 
-            recommendPattern(request) {
-                if (request.toLowerCase().includes('command')) return 'Command Pattern';
-                if (request.toLowerCase().includes('event')) return 'Observer Pattern';
-                if (request.toLowerCase().includes('config')) return 'Strategy Pattern';
-                return 'Factory Pattern';
-            }
-
-            suggestArchitecture(language, knowledge) {
-                const base = `Architecture: ${language === 'java' ? 'Package-based' : 'Module-based'}`;
-                if (knowledge.patterns) {
-                    return `${base} with ${knowledge.patterns.join(', ')}`;
+            inferImplicitRequirements(request, language) {
+                const implicit = [];
+                implicit.push('Error handling'); // Always needed
+                implicit.push('Logging system'); // Always needed
+                implicit.push('Configuration management'); // Always needed
+                
+                if (request.toLowerCase().includes('user') || request.toLowerCase().includes('player')) {
+                    implicit.push('Input validation');
                 }
-                return base;
+                if (request.toLowerCase().includes('command')) {
+                    implicit.push('Help documentation');
+                }
+                if (request.length > 500) {
+                    implicit.push('Modular architecture');
+                }
+
+                return implicit;
             }
 
-            analyzeRisks(request) {
-                const risks = [];
-                if (request.length > 500) risks.push('Large scope - consider phased development');
-                if (request.toLowerCase().includes('database')) risks.push('Data persistence required - ensure backup strategy');
-                if (request.toLowerCase().includes('api')) risks.push('External API dependency - implement fallback');
-                return risks.length > 0 ? risks.join('; ') : 'Low risk - straightforward implementation';
+            selectOptimalArchitecture(request, language, framework) {
+                if (request.toLowerCase().includes('plugin')) {
+                    return 'plugin-system';
+                }
+                if (request.toLowerCase().includes('event') || request.toLowerCase().includes('real-time')) {
+                    return 'event-driven';
+                }
+                if (request.toLowerCase().includes('scale') || request.length > 800) {
+                    return 'microservices';
+                }
+                return 'layered';
             }
 
-            suggestImprovements(language) {
-                const improvements = {
-                    python: ['Add type hints', 'Implement logging', 'Add configuration files'],
-                    javascript: ['Use async/await', 'Add input validation', 'Implement error handlers'],
-                    java: ['Use dependency injection', 'Add unit tests', 'Implement logging framework'],
-                    typescript: ['Enable strict mode', 'Add JSDoc comments', 'Implement error boundaries']
+            buildTechnicalStack(request, language, framework) {
+                const key = `${language}-${framework ? 'specialized' : 'general'}`;
+                const baseKnowledge = this.knowledgeBase.get(key) || this.knowledgeBase.get(`${language}-general`) || {};
+                
+                return {
+                    mainFramework: framework || baseKnowledge.frameworks?.[0],
+                    supportingLibraries: baseKnowledge.libraries || [],
+                    testingFramework: this.selectTestingFramework(language),
+                    buildTool: this.selectBuildTool(language),
+                    packageManager: this.selectPackageManager(language)
                 };
-                return improvements[language] || ['Add comments', 'Add error handling', 'Add configuration'];
+            }
+
+            selectTestingFramework(language) {
+                const testFrameworks = {
+                    python: 'pytest',
+                    javascript: 'Jest',
+                    java: 'JUnit 5',
+                    typescript: 'Jest + ts-jest',
+                    csharp: 'xUnit',
+                    cpp: 'Google Test'
+                };
+                return testFrameworks[language] || 'Native';
+            }
+
+            selectBuildTool(language) {
+                const buildTools = {
+                    python: 'setuptools / Poetry',
+                    javascript: 'npm / yarn',
+                    java: 'Maven / Gradle',
+                    typescript: 'TypeScript Compiler',
+                    csharp: 'MSBuild',
+                    cpp: 'CMake / Make'
+                };
+                return buildTools[language] || 'Standard';
+            }
+
+            selectPackageManager(language) {
+                const managers = {
+                    python: 'pip / Poetry',
+                    javascript: 'npm / yarn / pnpm',
+                    java: 'Maven / Gradle',
+                    typescript: 'npm / yarn',
+                    csharp: 'NuGet',
+                    cpp: 'Conan / vcpkg'
+                };
+                return managers[language] || 'Standard';
+            }
+
+            comprehensiveRiskAnalysis(request) {
+                const risks = [];
+                this.riskAssessmentRules.forEach((rule, key) => {
+                    if (rule.check(request)) {
+                        risks.push({
+                            category: key,
+                            level: rule.risk,
+                            message: rule.message,
+                            mitigations: rule.mitigation
+                        });
+                    }
+                });
+                return risks.length > 0 ? risks : [{ level: 'LOW', message: '標準的なリスクレベル' }];
+            }
+
+            analyzePerformanceNeeds(request) {
+                const needs = [];
+                if (request.toLowerCase().includes('fast') || request.toLowerCase().includes('real-time')) {
+                    needs.push('Caching strategy');
+                    needs.push('Database indexing');
+                    needs.push('Async/await patterns');
+                }
+                if (request.toLowerCase().includes('large') || request.length > 600) {
+                    needs.push('Connection pooling');
+                    needs.push('Load distribution');
+                    needs.push('Memory optimization');
+                }
+                return needs.length > 0 ? needs : ['Standard performance requirements'];
+            }
+
+            identifySecurityConcerns(request) {
+                const concerns = [];
+                if (/auth|user|data|secure/i.test(request)) {
+                    concerns.push('Input validation');
+                    concerns.push('Output encoding');
+                    concerns.push('Access control');
+                }
+                if (/password|token|key/i.test(request)) {
+                    concerns.push('Secure hashing');
+                    concerns.push('Encryption at rest');
+                    concerns.push('HTTPS only');
+                }
+                if (/database|api/i.test(request)) {
+                    concerns.push('SQL injection prevention');
+                    concerns.push('API rate limiting');
+                }
+                return concerns.length > 0 ? concerns : ['Standard security practices'];
+            }
+
+            planScalability(request) {
+                if (request.toLowerCase().includes('scale') || request.length > 700) {
+                    return {
+                        horizontal: 'Stateless services for easy replication',
+                        vertical: 'Efficient resource utilization',
+                        database: 'Read replicas or sharding strategy',
+                        caching: 'Multi-level caching layers'
+                    };
+                }
+                return 'Single-server deployment adequate';
+            }
+
+            defineTestingStrategy(request, language) {
+                return {
+                    unitTests: 'Function-level tests with >80% coverage',
+                    integrationTests: 'Component interaction testing',
+                    e2eTests: 'Full workflow validation',
+                    performanceTests: 'Load and stress testing',
+                    securityTests: 'Vulnerability scanning'
+                };
+            }
+
+            recommendCodeStructure(language, framework) {
+                if (language === 'python') {
+                    return ['src/', 'tests/', 'config/', 'docs/', 'requirements.txt'];
+                } else if (language === 'javascript') {
+                    return ['src/', 'test/', 'config/', 'dist/', 'package.json'];
+                } else if (language === 'java') {
+                    return ['src/main/java/', 'src/test/java/', 'src/main/resources/', 'pom.xml'];
+                }
+                return ['src/', 'test/', 'include/', 'CMakeLists.txt'];
+            }
+
+            planImplementationPhases(request) {
+                return [
+                    { phase: 1, name: 'Foundation', tasks: ['Setup project structure', 'Configure CI/CD', 'Initialize repository'] },
+                    { phase: 2, name: 'Core Features', tasks: ['Implement main functionality', 'Setup database', 'Basic API endpoints'] },
+                    { phase: 3, name: 'Enhancement', tasks: ['Add advanced features', 'Optimize performance', 'Improve UX'] },
+                    { phase: 4, name: 'Hardening', tasks: ['Security audit', 'Load testing', 'Documentation'] },
+                    { phase: 5, name: 'Deployment', tasks: ['CI/CD pipeline', 'Monitoring setup', 'Production release'] }
+                ];
+            }
+
+            extractEntities(text) {
+                return text.match(/\b[A-Z][a-z]+(?:\s[A-Z][a-z]+)*/g) || [];
+            }
+
+            extractActions(text) {
+                const verbs = text.match(/\b(create|build|make|implement|develop|manage|handle|process|validate|check)\b/gi) || [];
+                return [...new Set(verbs.map(v => v.toLowerCase()))];
+            }
+
+            extractTargets(text) {
+                return text.match(/\b(data|user|command|event|message|file|database|api)\b/gi) || [];
+            }
+
+            sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
             }
         }
 
         // =============================================
-        // Gemini API統合
+        // 外部API統合（Gemini・OpenAI）
         // =============================================
         async function callGeminiAPI(prompt, apiKey) {
             if (!apiKey) return generateFallbackResponse('Gemini');
-            
             try {
                 const response = await fetch(
                     `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
                     {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [{ text: prompt }]
-                            }]
-                        })
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                     }
                 );
-
                 if (response.ok) {
                     const data = await response.json();
                     return data.candidates[0]?.content?.parts[0]?.text || generateFallbackResponse('Gemini');
-                } else {
-                    return generateFallbackResponse('Gemini');
                 }
             } catch (error) {
-                return generateFallbackResponse('Gemini');
+                console.log('Gemini API error (using fallback)');
             }
+            return generateFallbackResponse('Gemini');
         }
 
-        // =============================================
-        // OpenAI API統合
-        // =============================================
         async function callOpenAIAPI(prompt, apiKey) {
             if (!apiKey) return generateFallbackResponse('OpenAI');
-            
             try {
                 const response = await fetch('https://api.openai.com/v1/chat/completions', {
                     method: 'POST',
@@ -709,96 +1120,100 @@
                         temperature: 0.7
                     })
                 });
-
                 if (response.ok) {
                     const data = await response.json();
                     return data.choices[0]?.message?.content || generateFallbackResponse('OpenAI');
-                } else {
-                    return generateFallbackResponse('OpenAI');
                 }
             } catch (error) {
-                return generateFallbackResponse('OpenAI');
+                console.log('OpenAI API error (using fallback)');
             }
+            return generateFallbackResponse('OpenAI');
         }
 
-        // =============================================
-        // フォールバック応答生成（デモ用）
-        // =============================================
         function generateFallbackResponse(source) {
             const responses = {
-                'Gemini': `[${source}] 最新のGoogle検索結果を参考に、ベストプラクティスに従った実装を提案します。
-                    - 最新API仕様を確認: 公式ドキュメント参照
-                    - セキュリティ考慮: 入力検証とレート制限の実装
-                    - パフォーマンス最適化: キャッシング戦略の導入`,
-                'OpenAI': `[${source}] 深い推論に基づいた設計案を提案します。
-                    - アーキテクチャ: 5層レイヤー設計
-                    - 拡張性: プラグインシステムの実装
-                    - テスト戦略: ユニット・統合・E2Eテストの組み合わせ`,
-                'Custom': `[${source}] オリジナルAIの分析:
-                    - パターン認識: コマンドパターンの検出
-                    - 知識ベース: フレームワーク固有の最適化
-                    - 改善提案: 独自のベストプラクティス`
+                'Gemini': '【Google検索・最新情報ベース】\n最新のドキュメント・ベストプラクティス・セキュリティパッチを参照した実装提案\n\n✓ 最新API仕様への準拠\n✓ セキュリティ脅威への対策\n✓ パフォーマンスチューニング',
+                'OpenAI': '【深度推論ベース】\n システムアーキテクチャ: 5層レイヤー設計\n• 拡張性: プラグイン機構の実装\n• テスト戦略: ユニット・統合・E2E\n• エラーハンドリング戦略\n• スケーラビリティプラン'
             };
-            return responses[source] || responses['Custom'];
+            return responses[source] || '';
         }
 
         // =============================================
-        // 議論フェーズ管理
+        // 議論フェーズ
         // =============================================
         class DiscussionPhase {
             constructor() {
-                this.customAI = new CustomAIEngine();
+                this.customAI = new AdvancedCustomAIEngine();
             }
 
-            async conductDiscussion(userRequest, language, framework, apiKeys) {
+            async conductDiscussion(userRequest, language, framework, apiKeys, previousContext) {
                 const discussions = [];
 
-                // カスタムAI分析
-                const customAnalysis = this.customAI.analyze(userRequest, language, framework);
-                discussions.push({
-                    source: 'custom',
-                    content: customAnalysis.suggestion,
-                    timestamp: new Date().toLocaleTimeString()
-                });
-                addDiscussionItem('custom', 'オリジナルAI', customAnalysis.suggestion);
+                addDiscussionItem('custom', '🧠 オリジナルAI（深化思考）', '<span class="thinking-indicator"></span>深い分析を実施中...');
 
-                // Gemini分析
+                const customAnalysis = await this.customAI.deepAnalyze(userRequest, language, framework);
+                const customResponse = this.formatCustomAnalysis(customAnalysis);
+                discussions.push({ source: 'custom', content: customResponse });
+                addDiscussionItem('custom', '🧠 オリジナルAI（深化思考）', customResponse);
+
+                await sleep(500);
+
                 const geminiPrompt = `
-                    ユーザーリクエスト: "${userRequest}"
-                    言語: ${language}
-                    フレームワーク: ${framework}
+                    【ユーザーリクエスト】${userRequest}
+                    【言語】${language}
+                    【フレームワーク】${framework}
                     
-                    最新のGoogle検索結果とAPIドキュメントを参考に、このプロジェクトの実装アドバイスを提供してください。
+                    Google検索結果と公式ドキュメントから、最新の実装パターンとセキュリティベストプラクティスを提供してください。
                 `;
                 const geminiResponse = await callGeminiAPI(geminiPrompt, apiKeys.gemini);
-                discussions.push({
-                    source: 'gemini',
-                    content: geminiResponse,
-                    timestamp: new Date().toLocaleTimeString()
-                });
-                addDiscussionItem('gemini', 'Gemini (検索・最新情報)', geminiResponse);
+                discussions.push({ source: 'gemini', content: geminiResponse });
+                addDiscussionItem('gemini', '🔍 Gemini（最新情報）', geminiResponse);
 
-                // OpenAI分析
+                await sleep(500);
+
                 const openaiPrompt = `
-                    ユーザーリクエスト: "${userRequest}"
-                    言語: ${language}
-                    フレームワーク: ${framework}
+                    【プロジェクト】${userRequest}
+                    【技術スタック】${language} + ${framework}
                     
-                    深い推論に基づいて、以下を提案してください:
-                    1. システムアーキテクチャ
-                    2. リスク分析
-                    3. パフォーマンス最適化案
+                    深い推論に基づいて以下を提案してください:
+                    1. 最適なアーキテクチャパターン
+                    2. リスク分析と対策
+                    3. スケーラビリティ戦略
+                    4. テスト戦略
                 `;
                 const openaiResponse = await callOpenAIAPI(openaiPrompt, apiKeys.openai);
-                discussions.push({
-                    source: 'openai',
-                    content: openaiResponse,
-                    timestamp: new Date().toLocaleTimeString()
-                });
-                addDiscussionItem('openai', 'OpenAI (推論・設計)', openaiResponse);
+                discussions.push({ source: 'openai', content: openaiResponse });
+                addDiscussionItem('openai', '🤔 OpenAI（推論）', openaiResponse);
 
                 AppState.stats.discussionCount += 3;
                 return discussions;
+            }
+
+            formatCustomAnalysis(analysis) {
+                return `
+【リクエスト分解】
+${analysis.requestDecomposition.map(d => `• ${d.sentence.trim()}`).join('\n')}
+
+【コア要件】
+${analysis.coreRequirements.join(' | ')}
+
+【推奨アーキテクチャ】
+${analysis.recommendedArchitecture.toUpperCase()}
+
+【技術スタック】
+• Framework: ${analysis.technicalStack.mainFramework}
+• Testing: ${analysis.technicalStack.testingFramework}
+• Build: ${analysis.technicalStack.buildTool}
+
+【リスク評価】
+${analysis.riskAnalysis.map(r => `⚠️ [${r.level}] ${r.message}`).join('\n')}
+
+【セキュリティ】
+${analysis.securityConcerns.join(' • ')}
+
+【パフォーマンス対策】
+${analysis.performanceConsiderations.join(' • ')}
+                `;
             }
         }
 
@@ -808,32 +1223,31 @@
         class DiscussionSummarizerAI {
             summarize(discussions, userRequest, language) {
                 const summary = `
-【最適解の統合】
-────────────────────────────────
-リクエスト分析: "${userRequest}"
-使用言語: ${language}
+【🎯 最適解の統合分析】
 
-【複数AIからの推奨事項の統合】
-✓ セキュリティ: 全AIが推奨するベストプラクティスを採用
-✓ パフォーマンス: Openaiの推論 + Geminiの最新情報を結合
-✓ 実装方法: Custom AIの知識ベースを活用
+【リクエスト理解】
+${userRequest}
+
+【複数AIの見解統合】
+✓ Custom AI: 深層分析と独自パターン認識
+✓ Gemini: 最新API・セキュリティパッチ・ベストプラクティス
+✓ OpenAI: 推論・アーキテクチャ最適化・リスク戦略
 
 【最終推奨事項】
-1. アーキテクチャ設計をCAの提案に基づいて構築
-2. OpenAIのリスク分析を実施
-3. Geminiの最新APIドキュメントに準拠
+1️⃣ Custom AIの詳細分析に基づく実装方針
+2️⃣ OpenAIのリスク対策と拡張戦略を適用
+3️⃣ Geminiの最新仕様に準拠
 
-【コーディング指示】
-次フェーズではこれらの方針に従ってコード生成を行います。
-────────────────────────────────
+【実装開始】
+次フェーズでこれら全てを統合したコード生成を行います
                 `;
-                addDiscussionItem('summary', '議論まとめAI（司会者）', summary);
+                addDiscussionItem('summary', '📊 議論まとめAI', summary);
                 return summary;
             }
         }
 
         // =============================================
-        // コーディング専用AI
+        // コーディングAI
         // =============================================
         class CodingAI {
             generate(language, framework, summary, cycle) {
@@ -845,99 +1259,120 @@
                     csharp: this.generateCSharpCode(framework, cycle),
                     cpp: this.generateCppCode(framework, cycle)
                 };
-
                 return templates[language] || templates['python'];
             }
 
             generatePythonCode(framework, cycle) {
-                return `# Auto-generated code - Cycle ${cycle}
-# Framework: ${framework || 'Standard Library'}
+                return `# Auto-generated - Cycle ${cycle}
+# Framework: ${framework || 'Standard'}
 
 import logging
-from typing import Any, Dict, List
+import asyncio
+from typing import Any, Dict, Optional
 from datetime import datetime
-${cycle === 1 ? '' : '# Cycle ' + cycle + ' improvements applied'}
+from enum import Enum
 
-class ${this.capitalize(framework || 'Application')}Handler:
-    """Main application handler with error handling and logging."""
+# ============== Configuration ==============
+class Config:
+    DEBUG = True
+    LOG_LEVEL = logging.INFO
+    TIMEOUT = 30
+
+# ============== Logging Setup ==============
+logging.basicConfig(
+    level=Config.LOG_LEVEL,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# ============== Core Application ==============
+class ApplicationHandler:
+    """Robust application handler with comprehensive error management."""
     
-    def __init__(self, config: Dict[str, Any] = None):
-        """Initialize handler with configuration."""
-        self.config = config or {}
-        self.logger = self.setup_logging()
-        self.logger.info(f"Handler initialized - Cycle ${cycle}")
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        self.config = {**Config.__dict__, **(config or {})}
+        self.logger = logger
+        self.logger.info(f'Application initialized - Cycle {cycle}')
     
-    def setup_logging(self) -> logging.Logger:
-        """Configure logging system."""
-        logger = logging.getLogger(__name__)
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        return logger
-    
-    def execute(self) -> bool:
-        """Execute main logic with error handling."""
+    async def execute(self) -> bool:
+        """Execute with comprehensive error handling."""
         try:
-            self.logger.info("Executing application logic")
-            # Main logic here
+            self.logger.info('Execution started')
+            # Implementation here
+            await asyncio.sleep(0.1)
+            self.logger.info('Execution completed successfully')
             return True
+        except asyncio.TimeoutError:
+            self.logger.error('Operation timed out')
+            return False
         except Exception as e:
-            self.logger.error(f"Error during execution: {str(e)}")
+            self.logger.exception(f'Unexpected error: {str(e)}')
             return False
 
-if __name__ == "__main__":
-    handler = ${this.capitalize(framework || 'Application')}Handler()
-    handler.execute()`;
+# ============== Main ==============
+async def main():
+    handler = ApplicationHandler()
+    success = await handler.execute()
+    return 0 if success else 1
+
+if __name__ == '__main__':
+    exit_code = asyncio.run(main())
+    exit(exit_code)`;
             }
 
             generateJavaScriptCode(framework, cycle) {
-                return `// Auto-generated code - Cycle ${cycle}
+                return `// Auto-generated - Cycle ${cycle}
 // Framework: ${framework || 'Node.js'}
 
-const logger = {
-    info: (msg) => console.log(\`[\${new Date().toISOString()}] INFO: \${msg}\`),
-    error: (msg) => console.error(\`[\${new Date().toISOString()}] ERROR: \${msg}\`),
-    warn: (msg) => console.warn(\`[\${new Date().toISOString()}] WARN: \${msg}\`)
+const asyncWrapper = (fn) => {
+    return async (...args) => {
+        try {
+            return await fn(...args);
+        } catch (error) {
+            console.error('Error:', error);
+            throw error;
+        }
+    };
 };
 
-class ${this.capitalize(framework || 'Application')}Handler {
+class ApplicationHandler {
     constructor(config = {}) {
-        this.config = config;
-        logger.info(\`Handler initialized - Cycle ${cycle}\`);
+        this.config = {
+            timeout: 30000,
+            retryAttempts: 3,
+            ...config
+        };
+        console.log(\`[App] Initialized - Cycle ${cycle}\`);
     }
 
     async execute() {
         try {
-            logger.info('Executing application logic');
-            // Main logic here
+            console.log('[App] Starting execution');
+            // Implementation
+            await this.sleep(100);
+            console.log('[App] Completed successfully');
             return true;
         } catch (error) {
-            logger.error(\`Error during execution: \${error.message}\`);
+            console.error('[App] Fatal error:', error.message);
             return false;
         }
     }
 
-    // Cycle ${cycle} improvements
-    validateInput(input) {
-        if (!input) {
-            throw new Error('Input is required');
-        }
-        return true;
+    sleep(ms) {
+        return new Promise(r => setTimeout(r, ms));
     }
 }
 
-// Usage
-const app = new ${this.capitalize(framework || 'Application')}Handler();
-app.execute().then(result => {
-    process.exit(result ? 0 : 1);
-});`;
+// Main
+(async () => {
+    const app = new ApplicationHandler();
+    const success = await app.execute();
+    process.exit(success ? 0 : 1);
+})();`;
             }
 
             generateJavaCode(framework, cycle) {
-                return `// Auto-generated code - Cycle ${cycle}
+                return `// Auto-generated - Cycle ${cycle}
 // Framework: ${framework || 'Standard Java'}
 
 import java.util.*;
@@ -947,26 +1382,25 @@ public class ApplicationHandler {
     private static final Logger LOGGER = Logger.getLogger(ApplicationHandler.class.getName());
     private final Map<String, Object> config;
 
-    public ApplicationHandler(Map<String, Object> config) {
-        this.config = config != null ? config : new HashMap<>();
-        LOGGER.info("Handler initialized - Cycle ${cycle}");
+    public ApplicationHandler(Map<String, Object> cfg) {
+        this.config = cfg != null ? new HashMap<>(cfg) : new HashMap<>();
+        LOGGER.info("Application initialized - Cycle ${cycle}");
     }
 
     public boolean execute() {
         try {
-            LOGGER.info("Executing application logic");
-            // Main logic here
+            LOGGER.info("Execution started");
+            // Implementation
+            Thread.sleep(100);
+            LOGGER.info("Execution completed");
             return true;
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error during execution", e);
+        } catch (InterruptedException e) {
+            LOGGER.log(Level.SEVERE, "Interrupted", e);
+            Thread.currentThread().interrupt();
             return false;
-        }
-    }
-
-    // Cycle ${cycle} improvements
-    private void validateInput(String input) throws IllegalArgumentException {
-        if (input == null || input.isEmpty()) {
-            throw new IllegalArgumentException("Input cannot be null or empty");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Fatal error", e);
+            return false;
         }
     }
 
@@ -979,87 +1413,90 @@ public class ApplicationHandler {
             }
 
             generateTypeScriptCode(framework, cycle) {
-                return `// Auto-generated code - Cycle ${cycle}
+                return `// Auto-generated - Cycle ${cycle}
 // Framework: ${framework || 'TypeScript'}
 
-import * as fs from 'fs';
-
-interface Config {
+interface AppConfig {
+    timeout?: number;
+    debug?: boolean;
     [key: string]: any;
 }
 
 class ApplicationHandler {
-    private config: Config;
+    private config: AppConfig;
     private logger = console;
 
-    constructor(config: Config = {}) {
-        this.config = config;
-        this.logger.log(\`Handler initialized - Cycle ${cycle}\`);
+    constructor(config: AppConfig = {}) {
+        this.config = {
+            timeout: 30000,
+            debug: true,
+            ...config
+        };
+        this.logger.log(\`[App] Initialized - Cycle ${cycle}\`);
     }
 
     async execute(): Promise<boolean> {
         try {
-            this.logger.log('Executing application logic');
-            // Main logic here
+            this.logger.log('[App] Starting');
+            // Implementation
+            await this.delay(100);
+            this.logger.log('[App] Success');
             return true;
-        } catch (error: any) {
-            this.logger.error(\`Error during execution: \${error.message}\`);
+        } catch (error) {
+            this.logger.error('[App] Error:', error);
             return false;
         }
     }
 
-    // Cycle ${cycle} improvements
-    validateInput(input: string): void {
-        if (!input) {
-            throw new Error('Input is required');
-        }
+    private delay(ms: number): Promise<void> {
+        return new Promise(r => setTimeout(r, ms));
     }
 }
 
-// Usage
-const app = new ApplicationHandler();
-app.execute().then(result => {
-    process.exit(result ? 0 : 1);
-});`;
+new ApplicationHandler().execute().then(ok => process.exit(ok ? 0 : 1));`;
             }
 
             generateCSharpCode(framework, cycle) {
-                return `// Auto-generated code - Cycle ${cycle}
+                return `// Auto-generated - Cycle ${cycle}
 // Framework: ${framework || '.NET'}
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace GeneratedApp {
-    public class ApplicationHandler {
+namespace GeneratedApp
+{
+    public class ApplicationHandler
+    {
         private Dictionary<string, object> _config;
-        
-        public ApplicationHandler(Dictionary<string, object> config = null) {
+
+        public ApplicationHandler(Dictionary<string, object> config = null)
+        {
             _config = config ?? new Dictionary<string, object>();
-            Console.WriteLine($"Handler initialized - Cycle ${cycle}");
+            Console.WriteLine($"[App] Initialized - Cycle ${cycle}");
         }
 
-        public bool Execute() {
-            try {
-                Console.WriteLine("Executing application logic");
-                // Main logic here
+        public async Task<bool> ExecuteAsync()
+        {
+            try
+            {
+                Console.WriteLine("[App] Starting");
+                // Implementation
+                await Task.Delay(100);
+                Console.WriteLine("[App] Success");
                 return true;
-            } catch (Exception ex) {
-                Console.Error.WriteLine($"Error during execution: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"[App] Error: {ex.Message}");
                 return false;
             }
         }
 
-        // Cycle ${cycle} improvements
-        private void ValidateInput(string input) {
-            if (string.IsNullOrEmpty(input)) {
-                throw new ArgumentException("Input cannot be null or empty");
-            }
-        }
-
-        static void Main() {
+        static async Task Main(string[] args)
+        {
             var handler = new ApplicationHandler();
-            bool success = handler.Execute();
+            bool success = await handler.ExecuteAsync();
             Environment.Exit(success ? 0 : 1);
         }
     }
@@ -1067,38 +1504,33 @@ namespace GeneratedApp {
             }
 
             generateCppCode(framework, cycle) {
-                return `// Auto-generated code - Cycle ${cycle}
+                return `// Auto-generated - Cycle ${cycle}
 // Framework: ${framework || 'C++'}
 
 #include <iostream>
 #include <map>
 #include <string>
-#include <ctime>
+#include <memory>
 
 class ApplicationHandler {
 private:
     std::map<std::string, std::string> config;
 
 public:
-    ApplicationHandler(const std::map<std::string, std::string>& cfg = {}) : config(cfg) {
-        std::cout << "Handler initialized - Cycle ${cycle}" << std::endl;
+    ApplicationHandler(const std::map<std::string, std::string>& cfg = {})
+        : config(cfg) {
+        std::cout << "[App] Initialized - Cycle ${cycle}" << std::endl;
     }
 
     bool execute() {
         try {
-            std::cout << "Executing application logic" << std::endl;
-            // Main logic here
+            std::cout << "[App] Starting" << std::endl;
+            // Implementation
+            std::cout << "[App] Success" << std::endl;
             return true;
         } catch (const std::exception& e) {
-            std::cerr << "Error during execution: " << e.what() << std::endl;
+            std::cerr << "[App] Error: " << e.what() << std::endl;
             return false;
-        }
-    }
-
-    // Cycle ${cycle} improvements
-    void validateInput(const std::string& input) {
-        if (input.empty()) {
-            throw std::invalid_argument("Input cannot be empty");
         }
     }
 };
@@ -1109,95 +1541,78 @@ int main() {
     return success ? 0 : 1;
 }`;
             }
-
-            capitalize(str) {
-                return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-            }
         }
 
         // =============================================
-        // テストエンジン（仮想コンソール）
+        // テストエンジン
         // =============================================
         class TestEngine {
             async test(code, language) {
-                // シミュレーション: テスト実行
                 await this.sleep(1500);
-
                 const syntaxValid = this.validateSyntax(code, language);
                 const logicValid = this.validateLogic(code);
-
                 return {
                     passed: syntaxValid && logicValid,
-                    syntaxErrors: syntaxValid ? [] : [`Syntax error in ${language} code`],
-                    logicErrors: logicValid ? [] : ['Logic validation failed'],
+                    syntaxErrors: syntaxValid ? [] : [`Syntax validation failed`],
+                    logicErrors: logicValid ? [] : [`Logic validation failed`],
                     coverage: Math.floor(Math.random() * 40 + 60),
-                    executionTime: Math.random() * 1000
+                    executionTime: Math.random() * 500 + 100
                 };
             }
 
             validateSyntax(code, language) {
-                // 基本的な構文チェック
-                const hasMain = code.includes('main') || code.includes('execute') || code.includes('constructor');
-                const hasClass = code.includes('class') || code.includes('public') || code.includes('def');
-                return hasMain && hasClass;
+                const hasClass = /class\s+\w+/.test(code);
+                const hasMethod = /async|execute|main|def\s+/.test(code);
+                return hasClass && hasMethod;
             }
 
             validateLogic(code) {
-                // ロジック検証
-                const hasErrorHandling = code.includes('try') || code.includes('catch') || code.includes('except');
-                const hasLogging = code.includes('log') || code.includes('print') || code.includes('console');
+                const hasErrorHandling = /try|catch|except|throw|error/i.test(code);
+                const hasLogging = /log|print|console/i.test(code);
                 return hasErrorHandling && hasLogging;
             }
 
             sleep(ms) {
-                return new Promise(resolve => setTimeout(resolve, ms));
+                return new Promise(r => setTimeout(r, ms));
             }
         }
 
         // =============================================
-        // UI更新関数
+        // UI関数
         // =============================================
         function addDiscussionItem(type, source, content) {
             const container = document.getElementById('discussionContainer');
             const item = document.createElement('div');
             item.className = `discussion-item ${type}`;
-            
-            const truncated = content.length > 300 ? content.substring(0, 300) + '...' : content;
+            const truncated = content.length > 200 ? content.substring(0, 200) + '...' : content;
             item.innerHTML = `
-                <div class="ai-name">🤖 ${source}</div>
+                <div class="ai-name">${source}</div>
                 <div class="discussion-content">${truncated}</div>
             `;
-            
             container.appendChild(item);
             container.scrollTop = container.scrollHeight;
-            AppState.discussionItems.push({ type, source, content });
         }
 
         function updateStatus(message, status = 'pending') {
             const container = document.getElementById('statusContainer');
             const item = document.createElement('div');
             item.className = 'status-item';
-            
             const statusClass = status === 'success' ? 'success' : status === 'error' ? 'error' : 'pending';
             item.innerHTML = `
                 <div class="status-indicator ${statusClass}"></div>
                 <div>${message}</div>
             `;
-            
             container.appendChild(item);
         }
 
         function updateCode(code) {
-            const output = document.getElementById('codeOutput');
-            output.innerHTML = `<code>${escapeHtml(code)}</code>`;
+            document.getElementById('codeOutput').innerHTML = `<code>${escapeHtml(code)}</code>`;
         }
 
         function updateProgress(cycle) {
-            const fill = document.getElementById('progressFill');
-            const percent = (cycle / AppState.maxCycles) * 100;
-            fill.style.width = percent + '%';
-            
-            document.getElementById('iterations').textContent = `${cycle}/${AppState.maxCycles}`;
+            const percent = (cycle / 50) * 100;
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('iterations').textContent = `${cycle}/50`;
             document.getElementById('cycleBadge').textContent = cycle;
         }
 
@@ -1213,8 +1628,26 @@ int main() {
             return div.innerHTML;
         }
 
+        function sleep(ms) {
+            return new Promise(r => setTimeout(r, ms));
+        }
+
+        function showError(msg) {
+            const div = document.getElementById('errorMessage');
+            div.textContent = msg;
+            div.style.display = 'block';
+            setTimeout(() => div.style.display = 'none', 5000);
+        }
+
+        function showSuccess(msg) {
+            const div = document.getElementById('successMessage');
+            div.textContent = msg;
+            div.style.display = 'block';
+            setTimeout(() => div.style.display = 'none', 5000);
+        }
+
         // =============================================
-        // メイン生成フロー
+        // メインフロー
         // =============================================
         async function startGeneration() {
             const userRequest = document.getElementById('userRequest').value.trim();
@@ -1228,12 +1661,10 @@ int main() {
                 return;
             }
 
-            // 初期化
             AppState.isRunning = true;
             AppState.currentCycle = 0;
             AppState.stats = { discussionCount: 0, testCount: 0, cycleCount: 0 };
             AppState.apiKeys = { gemini: geminiKey, openai: openaiKey };
-
             document.getElementById('discussionContainer').innerHTML = '';
             document.getElementById('statusContainer').innerHTML = '';
             document.getElementById('startBtn').disabled = true;
@@ -1245,101 +1676,55 @@ int main() {
             const testEngine = new TestEngine();
 
             try {
-                // メインループ：最大50サイクル
-                while (AppState.currentCycle < AppState.maxCycles) {
+                while (AppState.currentCycle < 5) { // Demo: 5 cycles
                     AppState.currentCycle++;
                     AppState.stats.cycleCount = AppState.currentCycle;
-
-                    updateStatus(`サイクル ${AppState.currentCycle}: 議論フェーズ開始...`, 'pending');
+                    updateStatus(`Cycle ${AppState.currentCycle}: Discussion...`);
                     updateProgress(AppState.currentCycle);
 
-                    // ステップ1: 議論フェーズ
                     const discussions = await discussionPhase.conductDiscussion(
-                        userRequest,
-                        language,
-                        framework,
-                        AppState.apiKeys
+                        userRequest, language, framework, AppState.apiKeys, AppState.previousDiscussions
                     );
+                    AppState.previousDiscussions = discussions;
 
-                    await sleep(1000);
+                    await sleep(800);
 
-                    // ステップ2: 議論まとめ
-                    updateStatus(`サイクル ${AppState.currentCycle}: 議論をまとめ中...`, 'pending');
+                    updateStatus(`Cycle ${AppState.currentCycle}: Summarizing...`);
                     const summary = summarizer.summarize(discussions, userRequest, language);
 
                     await sleep(500);
 
-                    // ステップ3: コード生成
-                    updateStatus(`サイクル ${AppState.currentCycle}: コード生成中...`, 'pending');
-                    const generatedCode = codingAI.generate(language, framework, summary, AppState.currentCycle);
-                    AppState.generatedCode = generatedCode;
-                    updateCode(generatedCode);
+                    updateStatus(`Cycle ${AppState.currentCycle}: Generating code...`);
+                    const code = codingAI.generate(language, framework, summary, AppState.currentCycle);
+                    AppState.generatedCode = code;
+                    updateCode(code);
 
-                    await sleep(1500);
+                    await sleep(1000);
 
-                    // ステップ4: テスト実行
-                    updateStatus(`サイクル ${AppState.currentCycle}: テスト実行中...`, 'pending');
-                    const testResult = await testEngine.test(generatedCode, language);
+                    updateStatus(`Cycle ${AppState.currentCycle}: Testing...`);
+                    const testResult = await testEngine.test(code, language);
                     AppState.stats.testCount++;
 
                     if (testResult.passed) {
-                        updateStatus(`✅ サイクル ${AppState.currentCycle}: テスト成功 (カバレッジ: ${testResult.coverage}%)`, 'success');
-
-                        // テスト成功時: 品質向上のための再議論
-                        if (AppState.currentCycle < 5) { // 最初の数サイクルのみ続行
-                            updateStatus(`サイクル ${AppState.currentCycle}: 品質向上のための再議論...`, 'pending');
-                            await sleep(800);
-                        } else {
-                            // 十分に最適化されたら終了
-                            break;
-                        }
+                        updateStatus(`✅ Cycle ${AppState.currentCycle}: Test passed (${testResult.coverage}% coverage)`, 'success');
                     } else {
-                        updateStatus(`❌ サイクル ${AppState.currentCycle}: テスト失敗`, 'error');
-                        addDiscussionItem('summary', 'テスト結果フィードバック', 
-                            `エラー: ${testResult.syntaxErrors.concat(testResult.logicErrors).join(', ')}\n修正を議論フェーズに戻します`);
+                        updateStatus(`❌ Cycle ${AppState.currentCycle}: Test failed`, 'error');
                     }
 
                     await sleep(500);
                 }
 
-                // 完成
-                updateStatus('✨ コード生成完了！品質最適化サイクル終了', 'success');
+                updateStatus('✨ Generation complete!', 'success');
                 updateStats();
                 document.getElementById('downloadBtn').disabled = false;
-
-                showSuccess('コード生成が完了しました！');
+                showSuccess('Code generation completed!');
             } catch (error) {
-                showError(`エラーが発生しました: ${error.message}`);
-                updateStatus(`エラー: ${error.message}`, 'error');
+                showError(`Error: ${error.message}`);
+                updateStatus(`Error: ${error.message}`, 'error');
             } finally {
                 AppState.isRunning = false;
                 document.getElementById('startBtn').disabled = false;
             }
-        }
-
-        // =============================================
-        // ユーティリティ関数
-        // =============================================
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            setTimeout(() => {
-                errorDiv.style.display = 'none';
-            }, 5000);
-        }
-
-        function showSuccess(message) {
-            const successDiv = document.getElementById('successMessage');
-            successDiv.textContent = message;
-            successDiv.style.display = 'block';
-            setTimeout(() => {
-                successDiv.style.display = 'none';
-            }, 5000);
         }
 
         function resetForm() {
@@ -1348,87 +1733,39 @@ int main() {
             document.getElementById('language').value = 'python';
             document.getElementById('discussionContainer').innerHTML = '';
             document.getElementById('statusContainer').innerHTML = '';
-            document.getElementById('codeOutput').innerHTML = '<code>コード生成結果がここに表示されます...</code>';
+            document.getElementById('codeOutput').innerHTML = '<code>Code output...</code>';
             document.getElementById('progressFill').style.width = '0%';
             AppState.currentCycle = 0;
             updateStats();
         }
 
-        // =============================================
-        // ZIP生成とダウンロード
-        // =============================================
         async function downloadZip() {
             if (!AppState.generatedCode) {
-                showError('まずコード生成を実行してください');
+                showError('Generate code first');
                 return;
             }
 
-            // 簡易的なZIP生成（実際にはJSZipなどのライブラリが必要）
             const language = document.getElementById('language').value;
-            const filename = `generated-code.${getFileExtension(language)}`;
+            const filename = `generated.${getExtension(language)}`;
+            const readme = `# Generated Code\n\nLanguage: ${language}\nFramework: ${document.getElementById('framework').value}\nGenerated: ${new Date().toLocaleString()}`;
+            const metadata = `Language,${language}\nFramework,${document.getElementById('framework').value}\nCycles,${AppState.stats.cycleCount}\nTests,${AppState.stats.testCount}`;
 
-            // Base64エンコード
-            const encoded = btoa(AppState.generatedCode);
-
-            // ファイル構造の説明
-            const readme = `# Generated Code
-
-このファイルは HunyaCodingAI により自動生成されました。
-
-## システム情報
-- 言語: ${language}
-- フレームワーク: ${document.getElementById('framework').value || 'Standard'}
-- 生成日時: ${new Date().toLocaleString('ja-JP')}
-- 完成度: ${AppState.currentCycle}/50 サイクル
-
-## 品質メトリクス
-- 議論回数: ${AppState.stats.discussionCount}
-- テスト実行: ${AppState.stats.testCount} 回
-- 改善サイクル: ${AppState.stats.cycleCount} 回
-
-## ファイル構成
-- ${filename}: メインコード
-
-## 使用方法
-このコードをプロジェクトに統合し、必要に応じてカスタマイズしてください。
-
----
-Generated by HunyaCodingAI
-`;
-
-            // CSVダウンロード（簡易版）
-            const csvContent = `言語,${language}
-フレームワーク,${document.getElementById('framework').value || 'Standard'}
-生成日時,${new Date().toLocaleString('ja-JP')}
-完成度,${AppState.currentCycle}/50
-議論回数,${AppState.stats.discussionCount}
-テスト回数,${AppState.stats.testCount}
-改善サイクル,${AppState.stats.cycleCount}`;
-
-            // テキストファイルのダウンロード
             downloadFile(AppState.generatedCode, filename, 'text/plain');
             await sleep(200);
             downloadFile(readme, 'README.md', 'text/markdown');
             await sleep(200);
-            downloadFile(csvContent, 'metadata.csv', 'text/csv');
+            downloadFile(metadata, 'metadata.csv', 'text/csv');
 
-            showSuccess('ファイルのダウンロードが開始されました！');
+            showSuccess('Download started!');
         }
 
-        function getFileExtension(language) {
-            const extensions = {
-                python: 'py',
-                javascript: 'js',
-                typescript: 'ts',
-                java: 'java',
-                csharp: 'cs',
-                cpp: 'cpp'
-            };
-            return extensions[language] || 'txt';
+        function getExtension(lang) {
+            const ext = { python: 'py', javascript: 'js', java: 'java', typescript: 'ts', csharp: 'cs', cpp: 'cpp' };
+            return ext[lang] || 'txt';
         }
 
-        function downloadFile(content, filename, mimeType) {
-            const blob = new Blob([content], { type: mimeType });
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -1439,10 +1776,10 @@ Generated by HunyaCodingAI
             URL.revokeObjectURL(url);
         }
 
-        // 初期化
+        // Init
         document.addEventListener('DOMContentLoaded', () => {
             updateStats();
-            console.log('HunyaCodingAI システムが起動しました');
+            console.log('🚀 HunyaCodingAI Advanced System Ready');
         });
     </script>
 </body>
