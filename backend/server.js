@@ -26,10 +26,10 @@ app.use(express.json());
 // =============================================
 // Configuration
 // =============================================
-const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
-const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
-const GITHUB_API_URL = 'https://api.github.com';
-const GITHUB_TOKEN_URL = 'https://github.com/login/oauth/access_token';
+GITHUB_CLIENT_ID = Iv23litOB1HajHCZRaVn;
+GITHUB_CLIENT_SECRET = f68019a5683ce649ba9f809420fb8108c99178c1;
+GITHUB_API_URL = 'https://github.com/apps/hunyaai';
+GITHUB_TOKEN_URL = 'https://github.com/login/oauth/access_token';
 
 // =============================================
 // Routes
